@@ -1,69 +1,75 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 public class PlayerMove : MonoBehaviour
 {
-    public float moveSpeed; // Karakterin ileri hızı
-    public float jumpForce; // Zıplama kuvveti
     private Rigidbody2D rb;
-    private bool isFacingRight = true; // Karakterin sağa mı sola mı baktığını kontrol etmek için
-    bool isGrounded = false;
+    Animator playerAnimator;
 
-    Animator animator;
+    public float moveSpeed = 5f; // Karakterin ileri hızı
+    public float jumpSpeed = 1f, jumpFrequency=1f, nextjumpTime;
+
+    bool facingRight = true;
+    public bool isGrounded = false;
+
+    public Transform groundCheckPosition;
+    public float groundCheckRadius;
+    public LayerMask groundCheckLayer;
+   
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        playerAnimator = GetComponent<Animator>();
+        
     }
 
     void Update()
     {
-        // Karakterin yatay hareketi
-        float moveInput = Input.GetAxisRaw("Horizontal");
-        Vector3 move = new Vector3(moveInput, 0, 0);
-        transform.position += move * moveSpeed * Time.deltaTime;
-        animator.SetFloat("xVelocity", Mathf.Abs(moveInput));
-        animator.SetFloat("yVelocity", rb.velocity.y);
+        HorizontalMove();
 
-        // Karakterin yüzünü döndürme
-        if (moveInput > 0 && !isFacingRight)
+        OnGroundCheck();
+        if (rb.velocity.x < 0 && facingRight)
         {
-            Flip();
+            FlipFace();
         }
-        else if (moveInput < 0 && isFacingRight)
+        else if(rb.velocity.x > 0 && !facingRight)
         {
-            Flip();
+            FlipFace();
         }
 
-        // Zıplama kontrolü
-        if (Input.GetKeyDown(KeyCode.Space) && Mathf.Abs(rb.velocity.y) < 0.001f && isGrounded)
+        if (Input.GetAxis("Vertical") > 0 && isGrounded && (nextjumpTime < Time.timeSinceLevelLoad))
         {
-            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-            isGrounded = false;
-            animator.SetBool("isJumping", !isGrounded);
+            nextjumpTime = Time.timeSinceLevelLoad + jumpFrequency;
+            Jump();
         }
     }
 
-    void Flip()
+    void HorizontalMove()
     {
-        isFacingRight = !isFacingRight;
-        Vector3 scale = transform.localScale;
-        scale.x *= -1;
-        transform.localScale = scale;
+        rb.velocity = new Vector2(Input.GetAxis("Horizontal") * moveSpeed, rb.velocity.y);
+        playerAnimator.SetFloat("playerWalkSpeed", Mathf.Abs(rb.velocity.x));
+    }
+   
+    void FlipFace()
+    {
+        facingRight = !facingRight;
+        Vector3 tempLocalScale = transform.localScale;
+        tempLocalScale.x *= -1;
+        transform.localScale = tempLocalScale;
+
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void Jump()
     {
-        isGrounded = true;
-        animator.SetBool("isJumping", !isGrounded);
+        rb.AddForce(new Vector2(0f, jumpSpeed));
     }
-    
-    private void OnTriggerExit2D(Collider2D collision)
+
+    void OnGroundCheck()
     {
-        isGrounded = false;
-        animator.SetBool("isJumping", true);
-    }
+        isGrounded = Physics2D.OverlapCircle(groundCheckPosition.position, groundCheckRadius, groundCheckLayer);
+        playerAnimator.SetBool("isGroundedAnim", isGrounded);
+    } 
 }
