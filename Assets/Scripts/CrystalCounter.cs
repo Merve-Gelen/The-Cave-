@@ -20,13 +20,13 @@ public class CrystalCounter : MonoBehaviour
     void Start()
     {
         crystalText.text = ": " + currentCrystals.ToString();    
-        marketCrystalText.text = "Crystal: " + currentCrystals.ToString(); // Market ekranındaki metni başlangıçta güncelle
+        marketCrystalText.text = "Crystals: " + currentCrystals.ToString(); // Market ekranındaki metni başlangıçta güncelle
     }
 
     public void IncreaseCrystals(int v)
     {
         currentCrystals += v;
         crystalText.text = ": " + currentCrystals.ToString();
-        marketCrystalText.text = "Crystal: " + currentCrystals.ToString(); // Kristal sayısı değiştiğinde market ekranındaki metni güncelle
+        marketCrystalText.text = "Crystals: " + currentCrystals.ToString(); // Kristal sayısı değiştiğinde market ekranındaki metni güncelle
     }
 }
