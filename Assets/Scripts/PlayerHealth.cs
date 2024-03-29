@@ -16,6 +16,8 @@ public class PlayerHealth : MonoBehaviour
     private float timeBetweenDamage = 1.5f; // 0.5 saniye aralıklarla hasar alacak
     private int damagePerInterval = 1; // Her hasar alınma aralığında alınacak hasar miktarı
 
+    public Button healButton; // Canı artırmak için buton
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -23,6 +25,9 @@ public class PlayerHealth : MonoBehaviour
         // Başlangıç konumunu ve rotasyonunu kaydet
         startingPosition = transform.position;
         startingRotation = transform.rotation;
+
+        // Butonun tıklanma olayına fonksiyonu ekle
+        healButton.onClick.AddListener(Heal);
     }
 
     void Update()
@@ -87,13 +92,27 @@ public class PlayerHealth : MonoBehaviour
 
         // CrystalCounter'ı bul
         CrystalCounter crystalCounter = FindObjectOfType<CrystalCounter>();
-        
+
         // Eğer bulunduysa, currentCrystals değerini sıfırla ve ekrandaki metni güncelle
         if (crystalCounter != null)
         {
             crystalCounter.currentCrystals = 0;
             crystalCounter.crystalText.text = ": " + crystalCounter.currentCrystals.ToString();
             crystalCounter.marketCrystalText.text = "Crystal: " + crystalCounter.currentCrystals.ToString();
+
+            // Potion stoklarını sıfırla
+            FindObjectOfType<ShopManager>().ResetPotionStocks();
         }
+    }
+
+    // Butona tıklanınca çağrılacak fonksiyon
+    public void Heal()
+    {
+        // Canı artır
+        currentHealth += 10;
+        // Ancak maksimum canı geçmemesi için kontrol yap
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        // Can çubuğunu güncelle
+        healthBar.SetHealth(currentHealth);
     }
 }
