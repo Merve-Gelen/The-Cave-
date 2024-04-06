@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -11,7 +9,7 @@ public class PlayerMove : MonoBehaviour
 
     public float moveSpeed = 5f; // Karakterin ileri hızı
     public float jumpSpeed = 1f, jumpFrequency = 1f, nextjumpTime;
-
+    
     bool facingRight = true;
     public bool isGrounded = false;
 
@@ -34,6 +32,9 @@ public class PlayerMove : MonoBehaviour
     // Butona tıklanabileceğini belirten bayrak
     private bool canClick = true;
 
+    // Yeni eklenen ölüm kontrolü
+    private bool isDead = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -48,28 +49,33 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
-        HorizontalMove();
+        // Eğer ölüm durumunda ise, hareketi kontrol etme
+        if (!isDead)
+        {
+            HorizontalMove();
 
-        OnGroundCheck();
-        if (rb.velocity.x < 0 && facingRight)
-        {
-            FlipFace();
-        }
-        else if (rb.velocity.x > 0 && !facingRight)
-        {
-            FlipFace();
-        }
+            OnGroundCheck();
+            if (rb.velocity.x < 0 && facingRight)
+            {
+                FlipFace();
+            }
+            else if (rb.velocity.x > 0 && !facingRight)
+            {
+                FlipFace();
+            }
 
-        if (Input.GetAxis("Vertical") > 0 && isGrounded && (nextjumpTime < Time.timeSinceLevelLoad))
-        {
-            nextjumpTime = Time.timeSinceLevelLoad + jumpFrequency;
-            Jump();
+            if (Input.GetAxis("Vertical") > 0 && isGrounded && (nextjumpTime < Time.timeSinceLevelLoad))
+            {
+                nextjumpTime = Time.timeSinceLevelLoad + jumpFrequency;
+                Jump();
+            }
         }
     }
 
     void HorizontalMove()
     {
-        rb.velocity = new Vector2(Input.GetAxis("Horizontal") * moveSpeed, rb.velocity.y);
+        if (!isDead) // Ölü değilse hareket et
+            rb.velocity = new Vector2(Input.GetAxis("Horizontal") * moveSpeed, rb.velocity.y);
         playerAnimator.SetFloat("playerWalkSpeed", Mathf.Abs(rb.velocity.x));
     }
 
@@ -124,5 +130,20 @@ public class PlayerMove : MonoBehaviour
 
         // Buton tıklama iznini tekrar aç
         canClick = true;
+    }
+
+    // PlayerHealth scriptinden çağrılacak fonksiyon
+    public void StopMovementForDuration(float duration)
+    {
+        StartCoroutine(StopMovement(duration));
+    }
+
+    IEnumerator StopMovement(float duration)
+    {
+        // Belirli bir süre hareket etmeyi durdur
+        moveSpeed = 0f;
+        yield return new WaitForSeconds(duration);
+        // Belirli bir süre sonra hareketi tekrar başlat
+        moveSpeed = originalMoveSpeed;
     }
 }
