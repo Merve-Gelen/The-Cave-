@@ -11,16 +11,12 @@ public class PlayerHealth : MonoBehaviour
     public HealthBar healthBar;
     private Vector3 startingPosition;
     private Quaternion startingRotation;
-    private PlayerMove playerMove;
 
     private float timeSinceLastDamage = 0f;
     private float timeBetweenDamage = 1.5f; // 0.5 saniye aralıklarla hasar alacak
     private int damagePerInterval = 1; // Her hasar alınma aralığında alınacak hasar miktarı
 
     public Button healButton; // Canı artırmak için buton
-
-    public GameObject dieEffect;
-    public Transform rebornEffectSpawnPoint;
 
     void Start()
     {
@@ -29,7 +25,6 @@ public class PlayerHealth : MonoBehaviour
         // Başlangıç konumunu ve rotasyonunu kaydet
         startingPosition = transform.position;
         startingRotation = transform.rotation;
-        playerMove = GetComponent<PlayerMove>();
 
         // Butonun tıklanma olayına fonksiyonu ekle
         healButton.onClick.AddListener(Heal);
@@ -43,6 +38,11 @@ public class PlayerHealth : MonoBehaviour
         {
             TakeDamage(damagePerInterval);
             timeSinceLastDamage = 0f;
+        }
+
+        if (currentHealth <= 0)
+        {
+            Die();
         }
     }
 
@@ -79,24 +79,9 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
-        Instantiate(dieEffect, transform.position, Quaternion.identity);
-        playerMove.StopMovementForDuration(1f);
-        // Coroutine kullanarak sıfırlama işlemini 2 saniye sonra gerçekleştir
-        StartCoroutine(ResetAfterDelay());
-    }
-
-    IEnumerator ResetAfterDelay()
-    {
-        yield return new WaitForSeconds(1f);
-        
         // Oyuncu öldüğünde başlangıç konumuna ve rotasyonuna geri dön
         transform.position = startingPosition;
         transform.rotation = startingRotation;
-        
-        // Sabit pozisyondan efekti oluştur
-        Instantiate(rebornEffectSpawnPoint, rebornEffectSpawnPoint.position, Quaternion.identity);
-
-        playerMove.StopMovementForDuration(1f);
 
         // Canı yeniden doldur
         currentHealth = maxHealth;
