@@ -5,7 +5,7 @@ using UnityEngine;
 public class SlimeAttack : MonoBehaviour
 {
     public int damagePerHit; // Düşmanın her vuruşta vereceği hasar miktarı
-
+   
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -16,5 +16,9 @@ public class SlimeAttack : MonoBehaviour
                 playerHealth.TakeDamage(damagePerHit);
             }
         }
+
     }
+
+    
+
 }

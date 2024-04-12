@@ -9,6 +9,9 @@ TagManager:
   - Thorn
   - Crystal
   - Event
+  - Music
+  - Bullet
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -18,8 +21,8 @@ TagManager:
   - UI
   - Ground
   - Player
-  - 
-  - 
+  - Bullet
+  - Enemy
   - 
   - 
   - 

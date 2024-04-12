@@ -35,8 +35,16 @@ public class PlayerMove : MonoBehaviour
     // Yeni eklenen ölüm kontrolü
     private bool isDead = false;
 
+    Transform muzzle;
+
+    public Transform bullet;
+
+    public float bulletSpeed;
+
     void Start()
     {
+        muzzle = transform.GetChild(4);
+
         rb = GetComponent<Rigidbody2D>();
         playerAnimator = GetComponent<Animator>();
 
@@ -70,7 +78,13 @@ public class PlayerMove : MonoBehaviour
                 Jump();
             }
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            ShootBullet();
+        }
     }
+
 
     void HorizontalMove()
     {
@@ -145,5 +159,13 @@ public class PlayerMove : MonoBehaviour
         yield return new WaitForSeconds(duration);
         // Belirli bir süre sonra hareketi tekrar başlat
         moveSpeed = originalMoveSpeed;
+    }
+
+    void ShootBullet()
+    {
+        Transform tempBullet;
+        tempBullet = Instantiate(bullet, muzzle.position, Quaternion.identity);
+
+        tempBullet.GetComponent<Rigidbody2D>().AddForce(muzzle.forward * bulletSpeed);
     }
 }
