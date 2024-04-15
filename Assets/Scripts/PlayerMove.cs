@@ -79,7 +79,8 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(0))
+        // Space tuşuna basıldığında kurşun at
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             ShootBullet();
         }
@@ -166,6 +167,19 @@ public class PlayerMove : MonoBehaviour
         Transform tempBullet;
         tempBullet = Instantiate(bullet, muzzle.position, Quaternion.identity);
 
+        // Kurşunun yönünü belirleme
+        if (!facingRight) // Eğer karakter sağa bakmıyorsa
+        {
+            tempBullet.localScale = new Vector3(-0.5f, 0.5f, 0.5f); // Kurşunun x eksenini ters çevirerek yönünü tersine çevir
+        }
+        else // Eğer karakter sağa bakıyorsa
+        {
+            tempBullet.localScale = new Vector3(0.5f, 0.5f, 0.5f); // Kurşunun boyutunu varsayılan olarak ayarla
+        }
+
         tempBullet.GetComponent<Rigidbody2D>().AddForce(muzzle.forward * bulletSpeed);
+
+
+
     }
 }
